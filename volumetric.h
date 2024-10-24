@@ -5,7 +5,6 @@
 #include <tira/volume.h>
 
 
-
 namespace tira {
 
 	template <class T>

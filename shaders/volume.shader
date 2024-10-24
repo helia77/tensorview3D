@@ -1,3 +1,5 @@
+R"(
+
 # shader vertex
 # version 330 core
 
@@ -46,3 +48,5 @@ void main()
 {
 	colors = vec4(1.0f, 1.0f, 1.0f, opacity) * texture(volumeTexture, vertex_tex);
 };
+
+)"

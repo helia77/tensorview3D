@@ -8,7 +8,7 @@ bool window_focused = true;
 bool axis_change = true;                                // gets true when the axis plane is changes
 extern int step;                                        // the steps between each glyph along all axis
 extern int gui_VolumeSize[];
-extern float     gui_PixelSize[];
+extern float gui_PixelSize[];
 
 int scroll_axis = 2;				                    // default axis is Z
 int anisotropy = 0;                                     // 0: all tensors               1: linear tensors only
@@ -108,7 +108,6 @@ void RenderUI() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-
     {
         // Use smaller font size
         float old_size = ImGui::GetFont()->Scale;
@@ -128,7 +127,7 @@ void RenderUI() {
 
         ////////////////////////////////////////////////  Load tensor field  ///////////////////////////////////////////////
         ImGui::SeparatorText("Load");
-        if (ImGui::Button("Load Tensor"))					                                // create a button for loading the shader
+        if (ImGui::Button("Load Tensor"))					                      // create a button for loading the shader
         {
             ImGui::OpenPopup("Open File");
             tensor_data = true;
@@ -140,7 +139,7 @@ void RenderUI() {
         }
 
         ////////////////////////////////////////////////  Load volume  ////////////////////////////////////////////////////
-        if (ImGui::Button("Load Volume"))					                                // create a button for loading the shader
+        if (ImGui::Button("Load Volume"))					                      // create a button for loading the shader
         {
             ImGui::OpenPopup("Open File");
             volume_data = true;

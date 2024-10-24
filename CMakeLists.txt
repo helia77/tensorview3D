@@ -7,7 +7,7 @@ if(POLICY CMP0167)
 endif()
 
 #Name your project here
-project(tensor LANGUAGES CXX CUDA)
+project(tensor3d LANGUAGES CXX)
 
 
 #set the module directory
@@ -75,10 +75,4 @@ target_link_libraries(tensorview3
 				${CMAKE_DL_LIBS}
 				Boost::program_options
 				PRIVATE imgui::imgui
-)
-
-
-target_link_libraries(tensorvote
-				PRIVATE glm::glm
-				Boost::program_options
 )
