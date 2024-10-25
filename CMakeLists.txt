@@ -45,8 +45,11 @@ endif ( MSVC )
 
 configure_file(Roboto-Medium.ttf Roboto-Medium.ttf COPYONLY)
 
+# copy python scripts
+configure_file(volume2tensor.py 
+				volume2tensor.py COPYONLY)
 				
-#set the include directories
+# set the include directories
 include_directories(
 			${CMAKE_CURRENT_BINARY_DIR}
 			${CMAKE_CURRENT_SOURCE_DIR}
