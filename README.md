@@ -4,7 +4,7 @@ This repository provides a tensor visualization tool to visualize 3D tensor fiel
 
 ## Table of Contents
 1. [Overview](#overview)
-2. [Demo] (#demo)
+2. [Demo](#demo)
 3. [Dependencies](#dependencies)
 4. [Installation](#installation)
 5. [Usage](#usage)
