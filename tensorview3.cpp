@@ -79,9 +79,6 @@ bool RENDER_VOLUMETRIC = true;
 int VOLUMETRIC_PLANES = 10;
 
 // shader string files
-const std::string glyph_shader_string =
-#include "shaders/glyph3d.shader"
-;
 const std::string volume_shader_string =
 #include "shaders/volume.shader"
 ;
@@ -315,40 +312,6 @@ void InitGLEW() {
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 		exit(1);
 	}
-}
-
-tira::volume<float> GetDiagValues(tira::volume<glm::mat3> T) {
-	tira::volume<float> diagonal_elem(T.X(), T.Y(), T.Z(), 3);
-	glm::mat3 tensor;
-	for (size_t m = 0; m < T.X(); m++) {
-		for (size_t n = 0; n < T.Y(); n++) {
-			for (size_t p = 0; p < T.Z(); p++) {
-				tensor = T(m, n, p);
-				diagonal_elem(m, n, p, 0) = tensor[0][0];
-				diagonal_elem(m, n, p, 1) = tensor[1][1];
-				diagonal_elem(m, n, p, 2) = tensor[2][2];
-			}
-		}
-	}
-
-	return diagonal_elem;
-}
-
-tira::volume<float> GetOffDiagValues(tira::volume<glm::mat3> T) {
-	tira::volume<float> triangular_elem(T.X(), T.Y(), T.Z(), 3);
-	glm::mat3 tensor;
-	for (size_t m = 0; m < T.X(); m++) {
-		for (size_t n = 0; n < T.Y(); n++) {
-			for (size_t p = 0; p < T.Z(); p++) {
-				tensor = T(m, n, p);
-				triangular_elem(m, n, p, 0) = tensor[0][1];
-				triangular_elem(m, n, p, 1) = tensor[0][2];
-				triangular_elem(m, n, p, 2) = tensor[1][2];
-			}
-		}
-	}
-
-	return triangular_elem;
 }
 
 tira::volume<float> FA() {
@@ -641,13 +604,10 @@ void GaussianFilter(const float sigma) {
 void TensorVote(const float sigma, const float sigma2, const unsigned int p, const bool stick, const bool plate) {
 	Tn = tira::volume<glm::mat3>(T0.X(), T0.Y(), T0.Z());				// allocate space for the new field
 
-	std::cout << "Tensor voting in progress...\t";
 	const auto w = static_cast<unsigned int>(6.0f * std::max(sigma, sigma2) + 1.0f);	// calculate the window size for the vote field
 	cudaVote3D(reinterpret_cast<float*>(T0.data()), reinterpret_cast<float*>(Tn.data()),
 		static_cast<unsigned int>(T0.shape()[0]), static_cast<unsigned int>(T0.shape()[1]), static_cast<unsigned int>(T0.shape()[2]),
 		sigma, sigma2, w, p, in_device, stick, plate, false);
-
-	std::cout << "Done." << std::endl;
 }
 
 void UpdateEigens() {

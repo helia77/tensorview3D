@@ -1,11 +1,5 @@
 import numpy as np
-import scipy as sp
-import matplotlib.pyplot as plt
-import image2tensor as st
-import tensorvote as tv
-import tensorvote3d as tv3
 import skimage as ski
-import os
 
 
 def genSpiral3(N, d):

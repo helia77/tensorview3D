@@ -1,13 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Oct 24 15:49:53 2024
-
-@author: helioum
-"""
-import sys
 import numpy as np
 from scipy import signal
-from skimage.io import imread
 
 
 def structure3d(T,  sigma, noise=0, SAVE=False):
@@ -59,14 +51,6 @@ def structure3d(T,  sigma, noise=0, SAVE=False):
 
 
 
-def structure3d_nz(V, sigma=3):
-    
-    T = structure3d(V, sigma)
-    nz = V == 0
-    T[nz, :, :] = 0
-    return T
-
-
 def save_rgb_volume(vol, SAVE=False):
     """
     This function takes a 3D grayscale volume and saves the rgb version (uint8)
@@ -83,27 +67,5 @@ def save_rgb_volume(vol, SAVE=False):
         np.save('rgb_vol.npy', rgb_vol)
     else:
         return rgb_vol
-    
 
-
-'''
-if __name__ == "__main__":
-    if(len(sys.argv) < 2):
-        print("Provide an image file name for processing")
-        exit()
-    else:
-        filename = sys.argv[1]
-        print("Processing file " + filename)
-        V = imread(filename)
-        T = structure3d_nz(V, 0)
-    
-    if(len(sys.argv) > 2):
-        # the user provided an output file name
-        outfilename = sys.argv[2]
-    else:
-        outfilename = "output.npy"
-        
-    print("Saving tensor field as " + outfilename)
-    np.save(outfilename, T.astype(np.float32))
-'''  
 

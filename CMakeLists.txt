@@ -7,7 +7,7 @@ if(POLICY CMP0167)
 endif()
 
 #Name your project here
-project(tensor3d LANGUAGES CXX)
+project(tensor3d LANGUAGES CXX CUDA)
 
 
 #set the module directory
@@ -61,9 +61,8 @@ include_directories(
 # tensorview executable
 add_executable(tensorview3
 				tensorview3.cpp
-				volumetric.h
-				gui.cpp
-				gui.h
+				cuda_calls.cu
+				tensorvote.cu
 				ImGuiFileBrowser/ImGuiFileBrowser.cpp
 				ImGuiFileBrowser/ImGuiFileBrowser.h
 				ImGuiFileBrowser/dirent.h
