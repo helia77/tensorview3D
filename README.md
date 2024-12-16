@@ -25,7 +25,8 @@ For the complete repository (including the 2D version, image-to-tensor library, 
 ## Demo
 This demo shows the working experience with the TensorVeiw3D program. A tensor field of the Serial block-face scanning electron microscopy (SBF-SEM) data
 has been loaded to the program, and different tools are applied.
-![](https://github.com/helia77/tensorview3D/demo.gif)
+
+![](https://github.com/helia77/tensorview3D/blob/main/Demo/demo.gif)
 ---
 
 ## Dependencies
