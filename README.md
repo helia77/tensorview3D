@@ -4,10 +4,11 @@ This repository provides a tensor visualization tool to visualize 3D tensor fiel
 
 ## Table of Contents
 1. [Overview](#overview)
-2. [Dependencies](#dependencies)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Contributing](#contributing)
+2. [Demo] (#demo)
+3. [Dependencies](#dependencies)
+4. [Installation](#installation)
+5. [Usage](#usage)
+6. [Contributing](#contributing)
 
 ---
 
@@ -21,6 +22,10 @@ The repository focuses on:
 This project is designed for research in large-scale **tensor voting frameworks**, particularly for 3D data analysis and segmentation. 
 For the complete repository (including the 2D version, image-to-tensor library, etc.) visit the [STIM LAB Repository](https://github.com/STIM-Lab/tensor).
 
+## Demo
+This demo shows the working experience with the TensorVeiw3D program. A tensor field of the Serial block-face scanning electron microscopy (SBF-SEM) data
+has been loaded to the program, and different tools are applied.
+![](https://github.com/helia77/tensorview3D/demo.gif)
 ---
 
 ## Dependencies
