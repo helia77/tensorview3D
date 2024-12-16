@@ -23,8 +23,8 @@ This project is designed for research in large-scale **tensor voting frameworks*
 For the complete repository (including the 2D version, image-to-tensor library, etc.) visit the [STIM LAB Repository](https://github.com/STIM-Lab/tensor).
 
 ## Demo
-This demo shows the working experience with the TensorVeiw3D program. A tensor field of the Serial block-face scanning electron microscopy (SBF-SEM) data
-has been loaded to the program, and different tools are applied.
+This demo shows the functionality of the TensorView3D program. A tensor field generated from Serial Block-Face Scanning Electron Microscopy (SBF-SEM) data is loaded into the program,
+where various tools and visualization techniques are applied to the tensor field.
 
 ![](https://github.com/helia77/tensorview3D/blob/main/Demo/demo.gif)
 ---
