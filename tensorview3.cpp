@@ -1141,33 +1141,6 @@ void RenderUI() {
 				ImGui::Text("Gaussian Blur: %f s", t_gaussian);
 			}
 
-			// Third tab
-			if (ImGui::BeginTabItem("Previous"))
-			{
-				ImGui::Text("Implementations from the previous version of tensorview3d");
-
-				// Filter anisotropy using a threshold filter option
-				ImGui::SeparatorText("Anisotropy");
-				ImGui::Combo(" ", &anisotropy, "All\0Linear\0Planar\0Spherical\0\0");
-				ImGui::Spacing();
-				ImGui::SliderFloat("Filter", &filter, 0.1f, 1.0f);
-				ImGui::Spacing(); ImGui::Spacing();
-
-				// Show colormapped image based on shortest/longest eigenvector
-				ImGui::SeparatorText("IDK");
-				ImGui::Combo("\t", &cmap, "LongestVector\0ShortestVector\0\0");
-				ImGui::Spacing(); ImGui::Spacing();
-
-				// Adjust a threshold for eigenvalues corresponding to each tensor
-				ImGui::SeparatorText("Largest Eigenvalue Threshold");
-				static float begin = 0.f, end = 125.f, step = 0.005f;
-				ImGui::DragFloatRange2("Range", &begin, &end, 0.25f, 0.0f, 100, "Min: %.1f", "Max: %.1f");
-				ImGui::DragFloat("Step", &step, 0.00001, 0.0f, 1.0f, "%.6f");
-				ImGui::DragFloat("Threshold", &thresh, step, begin, end, "%.6f");
-				ImGui::Spacing(); ImGui::Spacing();
-
-				ImGui::EndTabItem();
-			}
 			ImGui::EndTabBar();
 		}
 
