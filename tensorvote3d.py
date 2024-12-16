@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 26 16:13:04 2024
-
-@author: helia
-"""
-
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
 import math
+import matplotlib
+import numpy as np
+import image2tensor as it
+import matplotlib.pyplot as plt
+
+
 
 '''
 
@@ -19,16 +15,69 @@ arg: tensor voting sigma
 
 '''
 
+def eigmag(T):
+    
+    eigenValues, eigenVectors = np.linalg.eigh(T)
+    magValues = np.abs(eigenValues)
+    
+    idx = np.argsort(magValues, -1)
+    
+    sortedValues = np.take_along_axis(eigenValues, idx, -1)
+    #sortedValues = eigenValues
+    sortedVectors = np.zeros_like(eigenVectors)
+    sortedVectors[..., 0, :] = np.take_along_axis(eigenVectors[..., 0, :], idx, -1)
+    sortedVectors[..., 1, :] = np.take_along_axis(eigenVectors[..., 1, :], idx, -1)
+    sortedVectors[..., 2, :] = np.take_along_axis(eigenVectors[..., 2, :], idx, -1)
+    #eigenVectors = np.take_along_axis(eigenVectors, idx, -1)
+    
+    return sortedValues, sortedVectors
 
 # calculates the normalization factor for a stick tensor field
 def eta(sigma1, sigma2, p):
-    num = np.pi * math.factorial(2*p)
-    den = 2**(2*p) * (math.factorial(p)**2)
-    s = sigma1**2 + sigma2**2
-    integral = (num / den) * s
+    num1 = 2
+    den1 = (2*p) + 1
+    term1 = sigma1**2 * (num1/den1)
+    
+    num2 = -2**(2*p + 1) * math.factorial(p) ** 2
+    den2 = math.factorial(2*p + 1)
+    term2 = sigma2**2 * (num2/den2)
+    
+    integral =  np.pi * (term1 + term2)
     return 1.0 / integral
 
 
+def decay_integrate(sigma1, sigma2=0, power=1, N=100, L_max=10):
+    total = 0
+    
+    dtheta = 2 * np.pi / N
+    dphi = np.pi / N
+    dl = L_max / N
+    
+    for n in range(N):
+        theta = n * dtheta
+        for m in range(N):
+            phi = m * dphi
+            
+            x = np.cos(theta) * np.sin(phi)
+            y = np.sin(theta) * np.sin(phi)
+            z = np.cos(phi)
+            
+            for k in range(N):
+                L = k * dl
+                dV = L**2 * dl * dtheta * dphi * np.sin(phi)
+
+                d1 = np.exp(-L**2 / sigma1**2) if sigma1 != 0 else 0
+                d2 = np.exp(-L**2 / sigma2**2) if sigma2 != 0 else 0
+                
+                qTd = x**2 + y**2 + z**2                # not sure about this line???
+                cos_2p_theta = (qTd**2)**power
+                sin_2p_theta = (1 - qTd**2)**power
+                
+                total += dV * (d1 * sin_2p_theta + d2 * cos_2p_theta)
+    
+    return total
+    
+# calculates the 3D stick field
 def stickfield3(qx, qy, qz, RX, RY, RZ, sigma1, sigma2=0, power=1):
     
     q = np.zeros((3, 1))
@@ -52,11 +101,11 @@ def stickfield3(qx, qy, qz, RX, RY, RZ, sigma1, sigma2=0, power=1):
     D[:, :, :, 2, 0] = np.divide(RZ, L, out=np.ones_like(RZ)*qz, where=L!=0)
     
     # calculate the rotated stick direction
-    Dt = np.transpose(D, axes=(0, 1, 3, 2))
-    I = np.eye(2)
+    Dt = np.transpose(D, axes=(0, 1, 2, 4, 3))
+    I = np.eye(3)
     R = I - 2 * np.matmul(D, Dt)
     Rq = np.matmul(R, q)
-    Rqt = np.transpose(Rq, (0, 1, 3, 2))
+    Rqt = np.transpose(Rq, (0, 1, 2, 4, 3))
     
     # calculate the decay based on the desired properties
     if sigma1 == 0:
@@ -70,42 +119,81 @@ def stickfield3(qx, qy, qz, RX, RY, RZ, sigma1, sigma2=0, power=1):
         d2 = np.exp(- L**2 / sigma2**2)
     
     qTd = np.squeeze(np.matmul(np.transpose(q), D))
-    cos_2_theta = qTd**2
-    sin_2_theta = 1 - cos_2_theta    
+    cos_2p_theta = (qTd**2)**power
+    sin_2p_theta = (1 - qTd**2)**power    
     
-    DECAY = (d1 * sin_2_theta + d2 * cos_2_theta)[..., np.newaxis, np.newaxis]
+    DECAY = (d1 * sin_2p_theta + d2 * cos_2p_theta)[..., np.newaxis, np.newaxis]
+    
     #decay = g1 * sin_2_theta + g2 * cos_2_theta
     
-    V = eta(sigma1, sigma2, power) * DECAY * np.matmul(Rq, Rqt)
-    return V
+    #V = eta(sigma1, sigma2, power) * DECAY * np.matmul(Rq, Rqt)
+    V = DECAY * np.matmul(Rq, Rqt)
+    return V.astype(np.float32)
 
 # calculate the vote result of the tensor field T
 # k is the eigenvector used as the voting direction
 # sigma is the standard deviation of the vote field
 def stickvote3(T, sigma=3, sigma2=0):
-    
     evals, evecs = eigmag(T)
     evals_mag = np.abs(evals)
     
-    
     # store the eigenvector corresponding to the largest eigenvalue
-    E = evecs[:, :, :, 1]
+    E = evecs[:, :, :, :, 2]
     
     sigmax = max(sigma, sigma2)
     
     # calculate the optimal window size
     w = int(6 * sigmax + 1)
     x = np.linspace(-(w-1)/2, (w-1)/2, w)
-    X0, X1 = np.meshgrid(x, x)
+    X0, X1, X2 = np.meshgrid(x, x, x)
     
     # create a padded vote field to store the vote results
     pad = int(3 * sigmax)
-    VF = np.pad(np.zeros(T.shape), ((pad, pad), (pad, pad), (0, 0), (0, 0)))
+    Z = np.zeros(T.shape, dtype=np.float32)
+    VF = np.pad(Z, ((pad, pad), (pad, pad), (pad, pad), (0, 0), (0, 0)))
     
     # for each pixel in the tensor field
     for x0 in range(T.shape[0]):
+        print('\nx0: ', end='')
         for x1 in range(T.shape[1]):
-            scale = (evals_mag[x0, x1, 1] - evals_mag[x0, x1, 0]) * np.sign(evals[x0, x1, 1])
-            S = scale * stickfield2(E[x0, x1, 0], E[x0, x1, 1], X0, X1, sigma, sigma2)
-            VF[x0:x0 + S.shape[0], x1:x1 + S.shape[1]] = VF[x0:x0 + S.shape[0], x1:x1 + S.shape[1]] + S
-    return VF[pad:-pad, pad:-pad, :, :]
+            for x2 in range(T.shape[2]):
+                scale = (evals_mag[x0, x1, x2, 2] - evals_mag[x0, x1, x2, 1]) * np.sign(evals[x0, x1, x2, 2])
+                S = scale * stickfield3(E[x0, x1, x2, 0], E[x0, x1, x2, 1], E[x0, x1, x2, 2], X0, X1, X2, sigma, sigma2)
+                VF[x0:x0 + S.shape[0], x1:x1 + S.shape[1], x2:x2 + S.shape[2]] += S
+        print(x0)
+    return VF[pad:-pad, pad:-pad, pad:-pad, :, :]
+
+# generate an impulse tensor field to test tensor voting
+def impulse3(N, x, y, z, l2=1, l1=0, l0=0, sigma1=5, sigma2=0, power=1):
+    
+    r = np.linspace(-N/2, N/2, N)
+    X, Y, Z = np.meshgrid(r, r, r)
+    
+    l = np.sqrt(x**2 + y**2 + z**2)
+    
+    #V = stickfield3(x/l, y/l, z/l, X, Y, Z, sigma1, sigma2, power)
+    
+    m = np.zeros((3, 3))
+    m[0, 0] = x * x
+    m[0, 1] = x * y
+    m[0, 2] = x * z
+    m[1, 0] = x * y
+    m[1, 1] = y * y
+    m[1, 2] = y * z
+    m[2, 0] = x * z
+    m[2, 1] = z * y
+    m[2, 2] = z * z
+    
+    l, v = np.linalg.eigh(m)
+    
+    l[0] = l0
+    l[1] = l1
+    l[2] = l2
+    
+    m = v @ np.diag(l) @ v.transpose()
+    
+    T = np.zeros((N, N, N, 3, 3)).astype(np.float32)
+    
+    T[int(N/2), int(N/2), int(N/2)] = m
+    
+    return T
